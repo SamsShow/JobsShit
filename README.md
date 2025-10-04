@@ -91,10 +91,31 @@ python job_tracker_bot.py
 ```
 
 Keep this running in the background. The bot will:
-- Monitor the specified channel(s)
+- **Scan the last 24 hours** of messages when it starts
+- **Monitor new messages** in real-time from the specified channel
 - Match jobs against your keywords
 - Send you notifications via Telegram
 - Store all matched jobs in the database
+
+**Example startup output:**
+```
+✅ Bot started successfully!
+🔒 Running with built-in rate limit protection
+📱 Your Telegram User ID: 123456789
+👀 Monitoring channel: @build3dao
+🔍 Keywords: solidity, smart contract, web3...
+
+🔍 Scanning last 24 hours of messages...
+  ✅ Found match: solidity, web3
+  ✅ Found match: smart contract, defi
+  
+📊 Scan complete!
+   📥 Scanned: 45 messages
+   ✅ Matched: 2 jobs
+   💾 New jobs saved: 2
+
+🤖 Bot is now monitoring for new jobs...
+```
 
 ### Viewing Tracked Jobs
 

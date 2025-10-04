@@ -18,6 +18,7 @@ API_HASH = os.getenv('API_HASH')
 YOUR_USER_ID = os.getenv('YOUR_USER_ID')
 CHANNEL_TO_MONITOR = os.getenv('CHANNEL_TO_MONITOR')
 KEYWORDS = [k.strip().lower() for k in os.getenv('KEYWORDS', '').split(',') if k.strip()]
+SCAN_HOURS = int(os.getenv('SCAN_HOURS', '24'))  # Default to 24 hours
 
 # Database setup
 DB_NAME = 'jobs_tracker.db'
@@ -100,11 +101,11 @@ async def get_user_id(client):
     return me.id
 
 async def scan_last_24_hours(client, channel, target_user_id):
-    """Scan the last 24 hours of messages from the channel"""
-    print("\n🔍 Scanning last 24 hours of messages...")
+    """Scan the last N hours of messages from the channel"""
+    print(f"\n🔍 Scanning last {SCAN_HOURS} hours of messages...")
     
-    # Calculate time 24 hours ago
-    time_24h_ago = datetime.now() - timedelta(hours=24)
+    # Calculate time N hours ago
+    time_24h_ago = datetime.now() - timedelta(hours=SCAN_HOURS)
     
     matched_count = 0
     total_scanned = 0
@@ -162,7 +163,7 @@ async def scan_last_24_hours(client, channel, target_user_id):
         print(f"   💾 New jobs saved: {matched_count}")
         
         if matched_count > 0:
-            summary = f"\n🎯 **Scan Complete!**\n\nFound **{matched_count}** matching jobs from the last 24 hours!\n\n🤖 Now monitoring for new jobs..."
+            summary = f"\n🎯 **Scan Complete!**\n\nFound **{matched_count}** matching jobs from the last {SCAN_HOURS} hours!\n\n🤖 Now monitoring for new jobs..."
             await client.send_message(target_user_id, summary, parse_mode='markdown')
         
     except FloodWaitError as e:
