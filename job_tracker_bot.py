@@ -2,6 +2,7 @@ import os
 import re
 import asyncio
 import sqlite3
+import base64
 from datetime import datetime, timedelta, timezone
 from telethon import TelegramClient, events
 from telethon.tl.types import Channel
@@ -12,9 +13,22 @@ import time
 # Load environment variables
 load_dotenv()
 
+# Decode session file from environment variable if available (for Railway deployment)
+session_base64 = os.getenv('SESSION_BASE64')
+if session_base64:
+    try:
+        session_data = base64.b64decode(session_base64)
+        with open('job_tracker_session.session', 'wb') as f:
+            f.write(session_data)
+        print("✅ Session file decoded from environment variable")
+    except Exception as e:
+        print(f"⚠️  Error decoding session: {e}")
+
 # Configuration
 API_ID = os.getenv('API_ID')
 API_HASH = os.getenv('API_HASH')
+BOT_TOKEN = os.getenv('BOT_TOKEN')  # Optional: Use bot token instead of user account
+PHONE_NUMBER = os.getenv('PHONE_NUMBER')  # Optional: Phone number for user authentication
 YOUR_USER_ID = os.getenv('YOUR_USER_ID')
 CHANNEL_TO_MONITOR = os.getenv('CHANNEL_TO_MONITOR')
 KEYWORDS = [k.strip().lower() for k in os.getenv('KEYWORDS', '').split(',') if k.strip()]
@@ -201,8 +215,18 @@ async def main():
         retry_delay=1
     )
     
-    await client.start()
-    print("✅ Bot started successfully!")
+    # Start the client with bot token or phone number to avoid interactive prompts
+    if BOT_TOKEN:
+        await client.start(bot_token=BOT_TOKEN)
+        print("✅ Bot started successfully with bot token!")
+    elif PHONE_NUMBER:
+        await client.start(phone=PHONE_NUMBER)
+        print("✅ Bot started successfully with phone number!")
+    else:
+        # This will use existing session or prompt interactively (local development only)
+        await client.start()
+        print("✅ Bot started successfully!")
+    
     print("🔒 Running with built-in rate limit protection")
     
     # Get your user ID
