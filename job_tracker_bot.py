@@ -2,7 +2,7 @@ import os
 import re
 import asyncio
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from telethon import TelegramClient, events
 from telethon.tl.types import Channel
 from telethon.errors import FloodWaitError, ChatWriteForbiddenError
@@ -104,8 +104,8 @@ async def scan_last_24_hours(client, channel, target_user_id):
     """Scan the last N hours of messages from the channel"""
     print(f"\n🔍 Scanning last {SCAN_HOURS} hours of messages...")
     
-    # Calculate time N hours ago
-    time_24h_ago = datetime.now() - timedelta(hours=SCAN_HOURS)
+    # Calculate time N hours ago (with timezone awareness for Telegram)
+    time_24h_ago = datetime.now(timezone.utc) - timedelta(hours=SCAN_HOURS)
     
     matched_count = 0
     total_scanned = 0
