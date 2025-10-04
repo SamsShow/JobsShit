@@ -209,14 +209,24 @@ async def main():
     user_id = await get_user_id(client)
     print(f"📱 Your Telegram User ID: {user_id}")
     
-    if not YOUR_USER_ID:
-        print(f"⚠️  Please add YOUR_USER_ID={user_id} to your .env file")
-    
-    target_user_id = int(YOUR_USER_ID) if YOUR_USER_ID and YOUR_USER_ID.isdigit() else user_id
+    # Determine where to send notifications
+    if YOUR_USER_ID:
+        try:
+            # Handle both positive user IDs and negative channel IDs
+            target_user_id = int(YOUR_USER_ID)
+            if target_user_id < 0:
+                print(f"📺 Notifications will be sent to Channel ID: {target_user_id}")
+            else:
+                print(f"👤 Notifications will be sent to User ID: {target_user_id}")
+        except ValueError:
+            print(f"⚠️  Invalid YOUR_USER_ID format. Using your account instead.")
+            target_user_id = user_id
+    else:
+        print(f"⚠️  YOUR_USER_ID not set. Using your account (Saved Messages).")
+        target_user_id = user_id
     
     print(f"👀 Monitoring channel: {CHANNEL_TO_MONITOR}")
     print(f"🔍 Keywords: {', '.join(KEYWORDS)}")
-    print(f"📬 Notifications will be sent to User ID: {target_user_id}")
     
     # Scan last 24 hours of messages
     await scan_last_24_hours(client, CHANNEL_TO_MONITOR, target_user_id)
